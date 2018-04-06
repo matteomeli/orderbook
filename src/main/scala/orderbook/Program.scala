@@ -1,6 +1,5 @@
 package orderbook
 
-import java.io.FileNotFoundException
 import scala.io.Source
 import scala.util.{Failure, Success, Try}
 
@@ -12,12 +11,8 @@ object Program {
   def main(args: Array[String]): Unit = {
     val book: Try[OrderBook] = for {
       (filename, tickSize, bookDepth) <- parseArgs(args)
-      result <- TryWith(Source.fromResource(filename)) { source =>
+      result <- TryWith(Source.fromFile(filename)) { source =>
         processOrders(source, OrderBook(tickSize, bookDepth))
-      } recoverWith { 
-        case _: NullPointerException =>
-          // NullPointerException signals a problem getting a resource from filename, e.g. the file doesn't exist
-          Failure(new FileNotFoundException(s"File $filename not found"))
       }
     } yield result
 
